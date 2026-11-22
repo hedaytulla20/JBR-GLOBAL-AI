@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JBR GLOBAL AI</title>
+<style>
+:root{--bg:#f4f7fa;--card:#fff;--ink:#0b1b2e;--mute:#5b6b7d;--line:#dbe3ec;--navy:#0b2447;--teal:#0f9d9a;--danger:#c0392b;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08111f;--card:#101d33;--ink:#e8eef6;--mute:#93a4b8;--line:#1f3250;--teal:#2ec4b6;--danger:#ff7b6b;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column}
+header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+header b{font-size:18px;letter-spacing:.3px;white-space:nowrap}header b span{color:var(--teal)}
+header small{margin-left:auto;opacity:.8;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+header button{padding:7px 12px;font-size:13px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}
+main{flex:1;min-height:0;overflow:auto;padding:16px}
+section{display:none;height:100%}section.on{display:block}
+section.fill.on{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{margin:0 0 10px;font-size:20px}h3{margin:0 0 4px;font-size:16px}
+p{margin:0 0 8px;color:var(--mute);font-size:14px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+button{font:inherit;border:0;border-radius:10px;padding:11px 14px;font-weight:600;background:var(--teal);color:#04222a;cursor:pointer}
+button:disabled{opacity:.6}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.del{background:transparent;color:var(--danger);border:1px solid var(--line);flex:0 0 auto}
+.proj{display:flex;gap:8px;align-items:center}.proj>div{flex:1;min-width:0}
+.proj h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--mute)}
+#code{flex:1;min-height:200px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;resize:none;white-space:pre;tab-size:2}
+#frame{flex:1;width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;min-height:300px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#status,#pstat{font-size:12px;color:var(--mute)}
+nav{display:flex;background:var(--card);border-top:1px solid var(--line)}
+nav button{flex:1;background:transparent;color:var(--mute);border-radius:0;padding:12px 4px;font-size:13px}
+nav button.on{color:var(--teal);box-shadow:inset 0 2px 0 var(--teal)}
+ul.road{margin:0;padding-left:18px;color:var(--mute);font-size:14px}ul.road li{margin:3px 0}
+.empty{text-align:center;color:var(--mute);padding:24px 8px}
+#auth{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 24px}
+#auth .box{max-width:420px;margin:0 auto}
+#auth .brand{text-align:center;margin:12px 0 18px;font-size:24px;font-weight:800;color:var(--ink)}#auth .brand span{color:var(--teal)}
+.seg{display:flex;gap:6px;margin-bottom:12px}.seg button{flex:1;background:transparent;color:var(--mute);border:1px solid var(--line)}.seg button.on{background:var(--teal);color:#04222a;border-color:var(--teal)}
+#auth input{margin-bottom:8px}
+.err{color:var(--danger);font-size:14px;min-height:20px;margin:2px 0 8px}
+.link{background:none;border:0;color:var(--teal);padding:6px 0;font-size:14px;font-weight:600}
+.or{text-align:center;color:var(--mute);font-size:13px;margin:10px 0}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;display:none;z-index:30}
+</style></head><body>
+
+<div id="auth"><div class="box">
+ <div class="brand">JBR GLOBAL <span>AI</span></div>
+ <div class="card" id="setup" style="display:none"><h3>Firebase is not configured</h3><p>Open index.html, find <b>firebaseConfig</b>, and paste your Firebase web app values. Then reload.</p></div>
+ <div class="card" id="authcard">
+  <div class="seg"><button id="m-login" class="on">Log in</button><button id="m-signup">Sign up</button></div>
+  <input id="a-name" placeholder="Your name" autocomplete="name" style="display:none">
+  <input id="a-email" type="email" placeholder="Email" autocomplete="email">
+  <input id="a-pass" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+  <div class="err" id="a-err"></div>
+  <button id="a-go" style="width:100%">Log in</button>
+  <button class="link" id="a-reset">Forgot password?</button>
+  <div class="or">or</div>
+  <button class="alt" id="a-google" style="width:100%">Continue with Google</button>
+ </div>
+</div></div>
+
+<header><b>JBR GLOBAL <span>AI</span></b><small id="who"></small><button id="logout">Log out</button></header>
+<main>
+<section id="s-projects" class="on">
+ <div class="card"><h2>New project</h2>
+  <input id="pname" placeholder="Project name" maxlength="60" style="margin-bottom:8px">
+  <div class="row"><select id="ptype"><option value="website">Website</option><option value="android">Android app</option></select>
+  <button id="create">Create</button></div></div>
+ <h2>Your projects</h2><div id="list"></div>
+ <div class="card"><h3>Coming in later steps</h3>
+  <ul class="road"><li>AI code generation and edits (Claude)</li><li>ZIP, APK and AAB export</li><li>Publish websites</li></ul></div>
+</section>
+<section id="s-editor" class="fill">
+ <div class="bar"><h3 id="ptitle">No project open</h3><span id="status"></span></div>
+ <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Open or create a project first."></textarea>
+ <div class="row"><button id="run">Run preview</button><button class="alt" id="save">Save now</button></div>
+</section>
+<section id="s-preview" class="fill">
+ <div class="bar"><h3>Live preview</h3><span id="pstat"></span></div>
+ <iframe id="frame" sandbox="allow-scripts allow-forms allow-modals" title="Preview"></iframe>
+</section>
+</main>
+<nav><button data-t="projects" class="on">Projects</button><button data-t="editor">Editor</button><button data-t="preview">Preview</button></nav>
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-auth-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore-compat.min.js"></script>
+<script>
+/* ===== PASTE YOUR FIREBASE WEB APP CONFIG HERE (Firebase Console > Project settings > Your apps) ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDYuIgroNl0WqGmxrmxRhEoYbmXR-vVR1U",
+  authDomain: "jbr-global-ai.firebaseapp.com",
+  projectId: "jbr-global-ai",
+  storageBucket: "jbr-global-ai.firebasestorage.app",
+  messagingSenderId: "501214151471",
+  appId: "1:501214151471:web:241a85b25ad7b585c657da"
+};
+/* This web config is not a secret. Your data is protected by Authentication and the Firestore rules. */
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ready=!/^PASTE/.test(firebaseConfig.apiKey);
+let auth,db,TS,user=null,cur=null,projects=[],timer=null,unsub=null,mode="login",saving=Promise.resolve();
+
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500)}
+function authErr(e){const c=(e&&e.code)||"";
+ const m={"auth/invalid-email":"That email address is not valid.","auth/missing-password":"Enter your password.","auth/weak-password":"Password must be at least 6 characters.","auth/email-already-in-use":"This email is already registered. Try logging in.","auth/invalid-credential":"Wrong email or password.","auth/user-not-found":"No account found for this email.","auth/wrong-password":"Wrong email or password.","auth/too-many-requests":"Too many attempts. Wait a moment and try again.","auth/network-request-failed":"No internet connection.","auth/popup-closed-by-user":"Google sign-in was cancelled.","auth/unauthorized-domain":"This website address is not in Firebase Authorized domains.","auth/operation-not-allowed":"This sign-in method is not enabled in Firebase."};
+ return m[c]||("Something went wrong ("+(c||"unknown")+").")}
+function setMode(m){mode=m;$("#m-login").classList.toggle("on",m==="login");$("#m-signup").classList.toggle("on",m==="signup");
+ $("#a-name").style.display=m==="signup"?"block":"none";$("#a-go").textContent=m==="signup"?"Create account":"Log in";
+ $("#a-pass").autocomplete=m==="signup"?"new-password":"current-password";$("#a-err").textContent=""}
+function showAuth(on){$("#auth").style.display=on?"block":"none"}
+
+const TPL={
+website:n=>`<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${n}</title>\n<style>\nbody{font-family:system-ui,sans-serif;margin:0;background:#f4f7fa;color:#0b1b2e}\nheader{background:#0b2447;color:#fff;padding:40px 20px;text-align:center}\nmain{padding:20px;max-width:640px;margin:auto}\n</style></head><body>\n<header><h1>${n}</h1><p>Edit me, then press Run preview.</p></header>\n<main><p>Your website starts here.</p></main>\n</body></html>`,
+android:n=>`<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${n}</title>\n<style>\nbody{font-family:system-ui,sans-serif;margin:0;background:#0b2447;color:#fff}\n.top{padding:18px 16px;font-weight:700;font-size:20px}\n.card{margin:12px;padding:16px;border-radius:14px;background:#12335f}\n</style></head><body>\n<div class="top">${n}</div>\n<div class="card">Welcome to your Android app screen.</div>\n</body></html>`};
+
+const pcol=()=>db.collection("users").doc(user.uid).collection("projects");
+const ms=t=>t&&t.toMillis?t.toMillis():Date.now();
+
+function render(){
+ const l=$("#list");
+ if(!projects.length){l.innerHTML='<div class="card empty">No projects yet. Create your first one above.</div>';return}
+ l.innerHTML=projects.map(p=>`<div class="card proj"><div><h3>${esc(p.name)}</h3><p><span class="tag">${p.type==="android"?"Android app":"Website"}</span> · ${new Date(p.updated).toLocaleString()}</p></div><button data-o="${esc(p.id)}">Open</button><button class="del" data-d="${esc(p.id)}" aria-label="Delete">✕</button></div>`).join("")}
+function tab(t){document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id==="s-"+t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t==="preview")run()}
+function clearEditor(){cur=null;$("#code").value="";$("#ptitle").textContent="No project open";$("#status").textContent=""}
+
+function startList(){
+ stopList();
+ unsub=pcol().orderBy("updatedAt","desc").onSnapshot(s=>{
+  projects=s.docs.map(d=>{const x=d.data();return{id:d.id,name:x.name,type:x.type,updated:ms(x.updatedAt)}});render()},
+  e=>toast("Could not load projects: "+(e.code||"error")))}
+function stopList(){if(unsub){unsub();unsub=null}projects=[];render()}
+
+async function ensureProfile(u){
+ const ref=db.collection("users").doc(u.uid),s=await ref.get();
+ const base={displayName:u.displayName||"",email:u.email||"",photoURL:u.photoURL||"",lastLoginAt:TS()};
+ if(s.exists)await ref.update(base);else await ref.set({...base,createdAt:TS()})}
+
+async function createProject(){
+ const n=$("#pname").value.trim();if(!n){$("#pname").focus();return}
+ const t=$("#ptype").value,ref=pcol().doc(),b=db.batch();
+ b.set(ref,{name:n,type:t,createdAt:TS(),updatedAt:TS()});
+ b.set(ref.collection("files").doc("index"),{path:"index.html",content:TPL[t](esc(n)),updatedAt:TS()});
+ $("#create").disabled=true;
+ try{await b.commit();$("#pname").value="";await open(ref.id)}catch(e){toast("Could not create project: "+(e.code||"error"))}
+ $("#create").disabled=false}
+
+async function open(id){
+ const p=projects.find(x=>x.id===id);if(!p)return;
+ $("#status").textContent="Loading…";
+ try{const s=await pcol().doc(id).collection("files").doc("index").get();
+  cur={id,name:p.name,type:p.type,code:s.exists?s.data().content:""};
+  $("#ptitle").textContent=cur.name;$("#code").value=cur.code;$("#status").textContent="";tab("editor")}
+ catch(e){$("#status").textContent="";toast("Could not open project: "+(e.code||"error"))}}
+
+function save(){
+ if(!cur||!user)return saving;
+ const id=cur.id,code=$("#code").value;cur.code=code;$("#status").textContent="Saving…";
+ saving=saving.then(async()=>{
+  const ref=pcol().doc(id),b=db.batch();
+  b.update(ref,{updatedAt:TS()});
+  b.set(ref.collection("files").doc("index"),{path:"index.html",content:code,updatedAt:TS()});
+  try{await b.commit();if(cur&&cur.id===id)$("#status").textContent="Saved"}
+  catch(e){$("#status").textContent="Not saved";toast("Save failed: "+(e.code||"error"))}});
+ return saving}
+
+async function removeProject(id){
+ if(!confirm("Delete this project and its files?"))return;
+ try{const ref=pcol().doc(id),fs=await ref.collection("files").get(),b=db.batch();
+  fs.forEach(d=>b.delete(d.ref));b.delete(ref);await b.commit();
+  if(cur&&cur.id===id)clearEditor()}
+ catch(e){toast("Could not delete: "+(e.code||"error"))}}
+
+function run(){
+ if(!cur){$("#frame").srcdoc="<p style='font-family:sans-serif;padding:16px;color:#555'>Open a project to see its preview.</p>";$("#pstat").textContent="";return}
+ cur.code=$("#code").value;$("#frame").srcdoc=cur.code;$("#pstat").textContent=cur.name}
+
+async function emailGo(){
+ const email=$("#a-email").value.trim(),pw=$("#a-pass").value,name=$("#a-name").value.trim(),err=$("#a-err");
+ err.textContent="";if(!email||!pw){err.textContent="Enter your email and password.";return}
+ $("#a-go").disabled=true;
+ try{
+  if(mode==="signup"){const c=await auth.createUserWithEmailAndPassword(email,pw);
+   if(name)await c.user.updateProfile({displayName:name})}
+  else await auth.signInWithEmailAndPassword(email,pw)}
+ catch(e){err.textContent=authErr(e)}
+ $("#a-go").disabled=false}
+async function googleGo(){
+ const err=$("#a-err");err.textContent="";const prov=new firebase.auth.GoogleAuthProvider();
+ try{await auth.signInWithPopup(prov)}
+ catch(e){if(e.code==="auth/popup-blocked"){try{await auth.signInWithRedirect(prov)}catch(x){err.textContent=authErr(x)}}else err.textContent=authErr(e)}}
+async function resetGo(){
+ const email=$("#a-email").value.trim(),err=$("#a-err");
+ if(!email){err.textContent="Type your email above first.";return}
+ try{await auth.sendPasswordResetEmail(email);err.textContent="";toast("Password reset email sent.")}catch(e){err.textContent=authErr(e)}}
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$("#m-login").onclick=()=>setMode("login");$("#m-signup").onclick=()=>setMode("signup");
+$("#a-go").onclick=emailGo;$("#a-google").onclick=googleGo;$("#a-reset").onclick=resetGo;
+$("#a-pass").onkeydown=e=>{if(e.key==="Enter")emailGo()};
+$("#create").onclick=createProject;
+$("#list").onclick=e=>{const o=e.target.closest("[data-o]"),d=e.target.closest("[data-d]");if(o)open(o.dataset.o);if(d)removeProject(d.dataset.d)};
+$("#code").oninput=()=>{if(!cur)return;$("#status").textContent="Editing…";clearTimeout(timer);timer=setTimeout(save,800)};
+$("#save").onclick=save;
+$("#run").onclick=async()=>{await save();tab("preview")};
+$("#logout").onclick=async()=>{await save();try{await auth.signOut()}catch(e){toast("Could not log out")}};
+
+render();
+if(!ready){showAuth(true);$("#setup").style.display="block";$("#authcard").style.display="none"}
+else{
+ firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();TS=firebase.firestore.FieldValue.serverTimestamp;
+ auth.onAuthStateChanged(async u=>{
+  user=u;
+  if(!u){stopList();clearEditor();$("#who").textContent="";showAuth(true);return}
+  showAuth(false);$("#who").textContent=u.displayName||u.email||"";
+  try{await ensureProfile(u)}catch(e){toast("Profile not saved: "+(e.code||"error"))}
+  startList()})}
+</script></body></html>
