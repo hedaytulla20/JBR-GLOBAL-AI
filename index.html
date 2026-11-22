@@ -192,10 +192,17 @@ async function emailGo(){
   else await auth.signInWithEmailAndPassword(email,pw)}
  catch(e){err.textContent=authErr(e)}
  $("#a-go").disabled=false}
+let gBusy=false;
 async function googleGo(){
+ if(gBusy)return;gBusy=true;$("#a-google").disabled=true;
  const err=$("#a-err");err.textContent="";const prov=new firebase.auth.GoogleAuthProvider();
+ prov.setCustomParameters({prompt:"select_account"});
  try{await auth.signInWithPopup(prov)}
- catch(e){if(e.code==="auth/popup-blocked"){try{await auth.signInWithRedirect(prov)}catch(x){err.textContent=authErr(x)}}else err.textContent=authErr(e)}}
+ catch(e){
+  if(e.code==="auth/popup-blocked")err.textContent="Your browser blocked the Google window. Allow pop-ups for this site, then tap once.";
+  else if(e.code==="auth/cancelled-popup-request"||e.code==="auth/popup-closed-by-user")err.textContent="Google sign-in was cancelled. Tap once and wait for the Google window.";
+  else err.textContent=authErr(e)}
+ gBusy=false;$("#a-google").disabled=false}
 async function resetGo(){
  const email=$("#a-email").value.trim(),err=$("#a-err");
  if(!email){err.textContent="Type your email above first.";return}
